@@ -2,7 +2,7 @@
 CXX = g++
 
 # Compiler flags
-CXXFLAGS = -std=c++17 -Wall -Wextra -Iinclude
+CXXFLAGS = -std=c++17 -g -Wall -Wextra -I$(INCLUDE_DIR)
 
 # Directories
 SRC_DIR = src
@@ -11,7 +11,7 @@ INCLUDE_DIR = include
 
 # Source files and object files
 SRCS := $(wildcard $(SRC_DIR)/*.cpp)
-OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
+OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRCS))
 
 # Output binary
 TARGET = $(BUILD_DIR)/main.out
