@@ -35,6 +35,16 @@ El proyecto incluye:
 - Un generador de ambientes basado en WFC.
 - Soporte para tilesets 3D.
 
+```mermaid
+flowchart TD
+    A["Start"] --> B("Initialize empty Scene")
+    B --> C{"While:"}
+    C --  Scene is not solved --> Z[Find Least Entropy Cell]
+    Z-->F["Collpase Cell"]
+    F-->G[Propagate Constraints]
+    G--> C
+    C--Scene Is Solved-->H[Return Scene object]
+```
 ## Ejemplos y Demos
 
 ### Videos Relacionados
