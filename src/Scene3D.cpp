@@ -15,7 +15,7 @@ Scene3D::Scene3D(int size_x,
             Object3DVector line3D{};
             for (int z = 0; z < size_z; z++)
             {
-                auto pos = Point3Dint{x, y, z};
+                auto pos = Coords3DInt{x, y, z};
                 line3D.emplace_back(Object3D(pos));
             }
             layer.emplace_back(line3D);
@@ -34,7 +34,7 @@ Scene3D::Scene3D(int cubesize)
             Object3DVector line3D{};
             for (int z = 0; z < cubesize; z++)
             {
-                auto pos = Point3Dint{x, y, z};
+                auto pos = Coords3DInt{x, y, z};
                 line3D.emplace_back(Object3D(pos));
             }
             layer.emplace_back(line3D);

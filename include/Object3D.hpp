@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <Constraint3D.hpp>
 
-struct Point3Dint
+struct Coords3DInt
 {
     int x, y, z;
 };
@@ -12,12 +12,12 @@ struct Point3Dint
 class Object3D
 {
 public:
-    Object3D(Point3Dint _position, unsigned _id, double _wheight, Constraint3D _constraints);
-    Object3D(Point3Dint _position);
+    Object3D(Coords3DInt _position, unsigned _id, double _weight, Constraint3D _constraints);
+    Object3D(Coords3DInt _position);
     ~Object3D();
 
-    Point3Dint position;
+    Coords3DInt position;
     unsigned id;
-    double wheight; // representa la frecuencia relativa de la pieza 3D
+    double weight;            // representa la frecuencia relativa de la pieza 3D
     Constraint3D constraints; // restricciones de la pieza 3D
 };
