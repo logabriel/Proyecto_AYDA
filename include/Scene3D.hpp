@@ -20,4 +20,6 @@ public:
             int size_z);
     Scene3D(int cubesize);
     ~Scene3D();
+    // void initialize() noexcept;
+    void printMatrix() const;
 };

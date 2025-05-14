@@ -1,6 +1,15 @@
 #pragma once
 #include <vector>
 
+enum RelativeDirection
+{
+    ABOVE,
+    BELOW,
+    NORTH,
+    EAST,
+    SOUTH,
+    WEST
+};
 class Constraint3D
 {
 public:
@@ -18,6 +27,8 @@ public:
     ~Constraint3D();
 
     std::vector<unsigned> get_constraints_for_direction(RelativeDirection direction);
+    int get_count_all_constraints() const;
+    std::vector<unsigned> get_valid_options() const;
 
 private:
     std::vector<unsigned> AllowedIDsAbove;
@@ -26,14 +37,7 @@ private:
     std::vector<unsigned> AllowedIDsEast;
     std::vector<unsigned> AllowedIDsSouth;
     std::vector<unsigned> AllowedIDsWest;
-};
 
-enum RelativeDirection
-{
-    ABOVE,
-    BELOW,
-    NORTH,
-    EAST,
-    SOUTH,
-    WEST
+    // To identify the valid IDs given the constraints
+    std::vector<unsigned> validIDs;
 };

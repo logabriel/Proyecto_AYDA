@@ -10,6 +10,7 @@ Constraint3D::~Constraint3D()
 }
 
 std::vector<unsigned> Constraint3D::get_constraints_for_direction(RelativeDirection direction)
+
 {
     switch (direction)
     {
@@ -35,4 +36,14 @@ std::vector<unsigned> Constraint3D::get_constraints_for_direction(RelativeDirect
     default:
         throw std::invalid_argument("Received Invalid Direction");
     }
+}
+
+int Constraint3D::get_count_all_constraints() const
+{
+    return AllowedIDsAbove.size() + AllowedIDsBelow.size() + AllowedIDsNorth.size() +
+           AllowedIDsEast.size() + AllowedIDsSouth.size() + AllowedIDsWest.size();
+}
+std::vector<unsigned> Constraint3D::get_valid_options() const
+{
+    return validIDs;
 }
