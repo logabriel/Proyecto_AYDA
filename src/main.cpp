@@ -11,6 +11,12 @@ void printWeights(const std::vector<double>& weights) {
     std::cout << "--------------------------\n";
 }
 
+// Temp, for Readability of constraints below
+#define EMPTY 0
+#define FLOOR 1
+#define WALL 2
+#define CORNER 3
+
 int main()
 {
     // 1. Definir patrones 3D y sus restricciones
@@ -18,42 +24,47 @@ int main()
 
     // Patrón 0: Empty (vacío)
     Constraint3D emptyConstraints(
-        {0}, {0}, {0}, {0}, {0}, {0}  // Solo se conecta consigo mismo
+        {EMPTY},                   // Above
+        {EMPTY, WALL, /*CORNER*/}, // Below
+        {EMPTY, WALL, /*CORNER*/}, // Norte
+        {EMPTY, WALL, /*CORNER*/}, // Este
+        {EMPTY, WALL, /*CORNER*/}, // Sur
+        {EMPTY, WALL, /*CORNER*/}  // Oeste
     );
     patterns.emplace_back(0, 1.0, emptyConstraints);
 
     // Patrón 1: Floor (suelo)
     Constraint3D floorConstraints(
-        {0, 2},    // Above: empty o wall
-        {0},       // Below: solo empty
-        {0, 1, 2}, // Norte: empty, floor, wall
-        {0, 1, 2}, // Este: empty, floor, wall
-        {0, 1, 2}, // Sur: empty, floor, wall
-        {0, 1, 2}  // Oeste: empty, floor, wall
+        {EMPTY, FLOOR, WALL}, // Above
+        {/*EMPTY,*/ FLOOR},   // Below
+        {FLOOR},              // Norte
+        {FLOOR},              // Este
+        {FLOOR},              // Sur
+        {FLOOR}               // Oeste
     );
-    patterns.emplace_back(1, 2.0, floorConstraints);
+    patterns.emplace_back(1, 1.0, floorConstraints);
 
     // Patrón 2: Wall (muro)
     Constraint3D wallConstraints(
-        {0},       // Above: solo empty
-        {1},       // Below: solo floor
-        {0, 1, 2}, // Norte: empty, floor, wall
-        {0, 1, 2}, // Este: empty, floor, wall
-        {0, 1, 2}, // Sur: empty, floor, wall
-        {0, 1, 2}  // Oeste: empty, floor, wall
+        {EMPTY, WALL}, // Above
+        {FLOOR, WALL}, // Below
+        {EMPTY, WALL}, // Norte
+        {EMPTY, WALL}, // Este
+        {EMPTY, WALL}, // Sur
+        {EMPTY, WALL}  // Oeste
     );
-    patterns.emplace_back(2, 1.5, wallConstraints);
+    patterns.emplace_back(2, 5.5, wallConstraints);
 
     // Patrón 3: Corner (esquina)
-    Constraint3D cornerConstraints(
-        {0},             // Above: solo empty
-        {1},             // Below: solo floor
-        {0, 1, 2, 3},   // Norte: empty, floor, wall, corner
-        {0, 1, 2, 3},   // Este: empty, floor, wall, corner
-        {0, 1, 2, 3},   // Sur: empty, floor, wall, corner
-        {0, 1, 2, 3}    // Oeste: empty, floor, wall, corner
-    );
-    patterns.emplace_back(3, 1.0, cornerConstraints);
+    // Constraint3D cornerConstraints(
+    //     {EMPTY},                      // Above
+    //     {FLOOR},                      // Below
+    //     {EMPTY, FLOOR, WALL, /*CORNER*/}, // Norte
+    //     {EMPTY, FLOOR, WALL, /*CORNER*/}, // Este
+    //     {EMPTY, FLOOR, WALL, /*CORNER*/}, // Sur
+    //     {EMPTY, FLOOR, WALL, /*CORNER*/}  // Oeste
+    // );
+    // patterns.emplace_back(3, 1.0, cornerConstraints);
 
     std::vector<double> weights;
     for (const auto &p : patterns)
