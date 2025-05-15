@@ -18,7 +18,7 @@ Wfc3D::Wfc3D(
     patterns = _patterns;
     weights = _weights;
 
-    rng.seed(std::random_device{}()); 
+    rng.seed(std::random_device{}());
 
     if (custom_seed.has_value())
     {
@@ -30,22 +30,21 @@ Wfc3D::Wfc3D(
 
 Wfc3D::~Wfc3D()
 {
-
 }
 
 void Wfc3D::initializeMatrix3D() noexcept
 {
     matrix3D.resize(size_x, std::vector<std::vector<std::set<unsigned int>>>(size_y, std::vector<std::set<unsigned int>>(size_z)));
 
-    for (size_t i = 0; i < size_x; ++i)
+    for (int i = 0; i < size_x; ++i)
     {
-        for (size_t j = 0; j < size_y; ++j)
+        for (int j = 0; j < size_y; ++j)
         {
-            for (size_t k = 0; k < size_z; ++k)
+            for (int k = 0; k < size_z; ++k)
             {
-                for (size_t p = 0; p < patterns.size(); ++p)
+                for (int p = 0; p < patterns.size(); ++p)
                 {
-                    matrix3D[i][j][k].insert(p);  // para cada celda se inicializa con todas las opciones de cubos que esta puede tener
+                    matrix3D[i][j][k].insert(p); // para cada celda se inicializa con todas las opciones de cubos que esta puede tener
                 }
             }
         }
@@ -70,10 +69,10 @@ Coords3DInt Wfc3D::findMinEntropyCell()
 
                 if (entropy > 1)
                 {
-                    if (entropy < minEntropy) 
+                    if (entropy < minEntropy)
                     {
                         minEntropy = entropy;
-                        minEntropyCells.clear(); 
+                        minEntropyCells.clear();
                         minEntropyCells.push_back({i, j, k});
                     }
                     else if (entropy == minEntropy)
@@ -93,7 +92,6 @@ Coords3DInt Wfc3D::findMinEntropyCell()
     std::uniform_int_distribution<size_t> dist(0, minEntropyCells.size() - 1);
     return minEntropyCells[dist(rng)];
 }
-
 
 // Colapsa una celda a un estado específico
 int Wfc3D::collapseCell(Coords3DInt cell)
@@ -162,35 +160,7 @@ bool Wfc3D::is3DCompatible(Coords3DInt cell1, Coords3DInt cell2, int pattern1, i
         return false;
     }
     else if (y1 < y2)
-    { // pattern1 abajo de pattern2
-        std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(ABOVE);
-        std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(BELOW);
-        std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
-        for (int elemento : list2)
-        {
-            if (elementosLista1.count(elemento))
-            {
-                return true; // Hay al menos un elemento en común
-            }
-        }
-        return false;
-    }
-    else if (y1 > y2)
-    { // pattern1 arriba de pattern2
-        std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(BELOW);
-        std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(ABOVE);
-        std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
-        for (int elemento : list2)
-        {
-            if (elementosLista1.count(elemento))
-            {
-                return true; // Hay al menos un elemento en común
-            }
-        }
-        return false;
-    }
-    else if (z1 < z2)
-    { // pattern1 detrás de pattern2
+    { // pattern1 frente de pattern2
         std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(NORTH);
         std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(SOUTH);
         std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
@@ -203,10 +173,42 @@ bool Wfc3D::is3DCompatible(Coords3DInt cell1, Coords3DInt cell2, int pattern1, i
         }
         return false;
     }
-    else if (z1 > z2)
-    { // pattern1 delante de pattern2
+    else if (y1 > y2)
+    { // pattern1 atras de pattern2
         std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(SOUTH);
         std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(NORTH);
+        std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
+        for (int elemento : list2)
+        {
+            if (elementosLista1.count(elemento))
+            {
+                return true; // Hay al menos un elemento en común
+            }
+        }
+        return false;
+    }
+    else if (z1 < z2)
+    { // pattern1 abajo de pattern2
+        std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(ABOVE);
+
+        std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(BELOW);
+
+        std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
+        for (int elemento : list2)
+        {
+            if (elementosLista1.count(elemento))
+            {
+                return true; // Hay al menos un elemento en común
+            }
+        }
+        return false;
+    }
+    else if (z1 > z2)
+    { // pattern1 arriba de pattern2
+        std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(BELOW);
+
+        std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(ABOVE);
+
         std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
         for (int elemento : list2)
         {
@@ -221,33 +223,38 @@ bool Wfc3D::is3DCompatible(Coords3DInt cell1, Coords3DInt cell2, int pattern1, i
     return false;
 }
 
-struct EntropyComparator {
-    const std::vector<std::vector<std::vector<std::set<unsigned int>>>>& matrix3D;
+struct EntropyComparator
+{
+    const std::vector<std::vector<std::vector<std::set<unsigned int>>>> &matrix3D;
 
-    EntropyComparator(const decltype(matrix3D)& matrix) : matrix3D(matrix) {}
+    EntropyComparator(const decltype(matrix3D) &matrix) : matrix3D(matrix) {}
 
-    bool operator()(const Coords3DInt& a, const Coords3DInt& b) const {
+    bool operator()(const Coords3DInt &a, const Coords3DInt &b) const
+    {
         return matrix3D[a.x][a.y][a.z].size() > matrix3D[b.x][b.y][b.z].size();
     }
 };
 
-std::vector<Coords3DInt> Wfc3D::getNeighbors(int x, int y, int z) const {
+std::vector<Coords3DInt> Wfc3D::getNeighbors(int x, int y, int z) const
+{
     std::vector<Coords3DInt> neighbors;
     constexpr int directions[6][3] = {
-        {1, 0, 0},   // Este
-        {-1, 0, 0},  // Oeste
-        {0, 1, 0},   // Norte
-        {0, -1, 0},  // Sur
-        {0, 0, 1},   // Arriba
-        {0, 0, -1}   // Abajo
+        {1, 0, 0},  // Este
+        {-1, 0, 0}, // Oeste
+        {0, 1, 0},  // Norte
+        {0, -1, 0}, // Sur
+        {0, 0, 1},  // Arriba
+        {0, 0, -1}  // Abajo
     };
 
-    for (const auto& [dx, dy, dz] : directions) {
+    for (const auto &[dx, dy, dz] : directions)
+    {
         int nx = x + dx;
         int ny = y + dy;
         int nz = z + dz;
 
-        if (nx >= 0 && nx < size_x && ny >= 0 && ny < size_y && nz >= 0 && nz < size_z) {
+        if (nx >= 0 && nx < size_x && ny >= 0 && ny < size_y && nz >= 0 && nz < size_z)
+        {
             neighbors.emplace_back(Coords3DInt{nx, ny, nz});
         }
     }
@@ -255,37 +262,52 @@ std::vector<Coords3DInt> Wfc3D::getNeighbors(int x, int y, int z) const {
     return neighbors;
 }
 
-bool Wfc3D::isValidCell(int x, int y, int z) const {
-    return (x >= 0 && x < size_x) && 
-           (y >= 0 && y < size_y) && 
+bool Wfc3D::isValidCell(int x, int y, int z) const
+{
+    return (x >= 0 && x < size_x) &&
+           (y >= 0 && y < size_y) &&
            (z >= 0 && z < size_z);
 }
 
-void Wfc3D::propagateConstraints(Coords3DInt cell)
+bool Wfc3D::propagateConstraints(Coords3DInt cell)
 {
-    std::queue<Coords3DInt> queue;  
+    std::queue<Coords3DInt> queue;
     queue.push(cell);
 
-    while (!queue.empty()) {
+    while (!queue.empty())
+    {
         auto [x, y, z] = queue.front();
         queue.pop();
 
-        if (matrix3D[x][y][z].empty()) {
+        if (matrix3D[x][y][z].empty())
+        {
             std::cerr << "Contradicción en (" << x << ", " << y << ", " << z << ")\n";
-            return;
+            return true;
         }
 
         int current_pattern = *matrix3D[x][y][z].begin();
 
-        for (auto [nx, ny, nz] : getNeighbors(x, y, z)) {
+        for (auto [nx, ny, nz] : getNeighbors(x, y, z))
+        {
             std::set<unsigned int> new_possibilities;
-            for (unsigned p : matrix3D[nx][ny][nz]) {
-                if (is3DCompatible({x, y, z}, {nx, ny, nz}, current_pattern, p)) {
+            for (unsigned p : matrix3D[nx][ny][nz])
+            {
+                if (is3DCompatible({x, y, z}, {nx, ny, nz}, current_pattern, p))
+                {
                     new_possibilities.insert(p);
                 }
+                else
+                {
+                    std::cerr << "NO is3DCompatible en (" << x << ", " << y << ", " << z << ")VS(" << nx << ", " << ny << ", " << nz << ")\t " << current_pattern << " with p:  " << p << "\n";
+                }
+            }
+            if (matrix3D[nx][ny][nz].empty())
+            {
+                std::cerr << "No possible result";
             }
 
-            if (new_possibilities.size() != matrix3D[nx][ny][nz].size()) {
+            if (new_possibilities.size() != matrix3D[nx][ny][nz].size())
+            {
                 matrix3D[nx][ny][nz] = new_possibilities;
                 queue.push({nx, ny, nz});
             }
@@ -300,28 +322,28 @@ bool Wfc3D::executeWfc3D()
         Coords3DInt cell = findMinEntropyCell();
         if (cell.x == -1)
         {
-            break; // todas las celdas han colapsado se detiene el algoritmo
+            return true; // todas las celdas han colapsado se detiene el algoritmo
         }
 
         collapseCell(cell);
-        propagateConstraints(cell);
+        bool foundContradiction = propagateConstraints(cell);
 
-        bool contradiction = false;
-        for (int x = 0; x < size_x && !contradiction; ++x)
-        {
-            for (int y = 0; y < size_y && !contradiction; ++y)
-            {
-                for (int z = 0; z < size_z && !contradiction; ++z)
-                {
-                    if (matrix3D[x][y][z].empty())
-                    {
-                        contradiction = true;
-                    }
-                }
-            }
-        }
+        // bool contradiction = false;
+        // for (int x = 0; x < size_x && !contradiction; ++x)
+        // {
+        //     for (int y = 0; y < size_y && !contradiction; ++y)
+        //     {
+        //         for (int z = 0; z < size_z && !contradiction; ++z)
+        //         {
+        //             if (matrix3D[x][y][z].empty())
+        //             {
+        //                 contradiction = true;
+        //             }
+        //         }
+        //     }
+        // }
 
-        if (contradiction)
+        if (foundContradiction)
         {
             std::cout << "¡Contradicción 3D encontrada!" << std::endl;
             return false;
@@ -343,7 +365,7 @@ void Wfc3D::printResult() const
                 if (!matrix3D[x][y][z].empty())
                 {
                     int pattern = *matrix3D[x][y][z].begin();
-                    std::cout << patterns[pattern].id << " "; 
+                    std::cout << patterns[pattern].id << " ";
                 }
                 else
                 {
