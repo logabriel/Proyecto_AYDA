@@ -12,12 +12,12 @@ struct Coords3DInt
 class Object3D
 {
 public:
-    Object3D(Coords3DInt _position, unsigned _id, double _weight, Constraint3D _constraints);
+    Object3D(unsigned _id = 0, double _weight = 0.0, Constraint3D _constraints = Constraint3D());
     Object3D(Coords3DInt _position);
     ~Object3D();
 
     Coords3DInt position;
-    unsigned id;
+    unsigned id;                //representa el id de la pieza 3D
     double weight;            // representa la frecuencia relativa de la pieza 3D
     Constraint3D constraints; // restricciones de la pieza 3D
 };
