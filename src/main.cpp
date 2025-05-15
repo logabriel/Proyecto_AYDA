@@ -3,9 +3,11 @@
 #include <tuple>
 #include <iostream>
 
-void printWeights(const std::vector<double>& weights) {
+void printWeights(const std::vector<double> &weights)
+{
     std::cout << "Pesos de los patrones:\n";
-    for (size_t i = 0; i < weights.size(); ++i) {
+    for (size_t i = 0; i < weights.size(); ++i)
+    {
         std::cout << "weights[" << i << "] = " << weights[i] << "\n";
     }
     std::cout << "--------------------------\n";
@@ -73,7 +75,7 @@ int main()
     }
 
     // Crear generador 3D (5x5x5)
-    Wfc3D wfc(patterns, weights, {5, 5, 5}, 47);
+    Wfc3D wfc(patterns, weights, {10, 10, 10}, 500);
 
     if (wfc.executeWfc3D())
     {
@@ -83,6 +85,7 @@ int main()
     else
     {
         std::cout << "La generación 3D falló debido a contradicciones.\n";
+        wfc.printResult();
     }
 
     return 0;

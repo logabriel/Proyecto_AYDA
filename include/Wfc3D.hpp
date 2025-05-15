@@ -20,10 +20,10 @@ public:
     void initializeMatrix3D() noexcept; // esto deberia estar en Scene3D (?)
     Coords3DInt findMinEntropyCell();
     int collapseCell(Coords3DInt cell_position);
-    bool is3DCompatible(Coords3DInt cell1, Coords3DInt cell2, 
-        int pattern1, int pattern2);
+    bool is3DCompatible(Coords3DInt cell1, Coords3DInt cell2,
+                        int pattern1, int pattern2);
     bool is3DCompatible(Coords3DInt cell_position);
-    void propagateConstraints(Coords3DInt cell);
+    bool propagateConstraints(Coords3DInt cell);
     bool executeWfc3D();
     void printResult() const;
     std::vector<Coords3DInt> getNeighbors(int x, int y, int z) const;
