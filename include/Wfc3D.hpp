@@ -4,6 +4,7 @@
 #include <Object3D.hpp>
 #include <Scene3D.hpp>
 #include <optional>
+#include <tuple>
 class Wfc3D
 {
 private:
@@ -16,6 +17,9 @@ private:
 public:
     Wfc3D(const std::vector<Object3D> &_patterns, const std::vector<double> &_weights, std::tuple<int, int, int> size, std::optional<unsigned> custom_seed = std::nullopt);
     ~Wfc3D();
+    std::tuple<int, int, int> get_sizes() const { return std::make_tuple(size_x, size_y, size_z); }
+    std::vector<std::vector<std::vector<std::set<unsigned int>>>> getMatrix3D() const { return matrix3D; }
+    std::vector<Object3D> get_patterns() const { return patterns; }
 
     void initializeMatrix3D() noexcept; // esto deberia estar en Scene3D (?)
     Coords3DInt findMinEntropyCell();
