@@ -100,7 +100,17 @@ int Wfc3D::collapseCell(Coords3DInt cell)
     int y = cell.y;
     int z = cell.z;
 
-    std::vector<int> options(matrix3D[x][y][z].begin(), matrix3D[x][y][z].end());
+    std::set<unsigned int> &cell_options = matrix3D[x][y][z];
+    if (cell_options.size() == 1) 
+    {
+        return *cell_options.begin(); // La celda ya está colapsada
+    }
+
+    if (cell_options.empty()) {
+        throw std::runtime_error("Celda sin opciones válidas para colapsar.");
+    }
+
+    std::vector<int> options(cell_options.begin(), cell_options.end());
     std::vector<double> option_weights;
 
     double total_weight = 0.0;
@@ -117,10 +127,8 @@ int Wfc3D::collapseCell(Coords3DInt cell)
     }
 
     std::discrete_distribution<int> dist(probabilities.begin(), probabilities.end());
-    int chosen = options[dist(rng)];
-
-    matrix3D[x][y][z].clear();
-    matrix3D[x][y][z].insert(chosen);
+    unsigned int chosen = options[dist(rng)];
+    cell_options = {chosen};
 
     return chosen;
 }
@@ -190,9 +198,7 @@ bool Wfc3D::is3DCompatible(Coords3DInt cell1, Coords3DInt cell2, int pattern1, i
     else if (z1 < z2)
     { // pattern1 abajo de pattern2
         std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(ABOVE);
-
         std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(BELOW);
-
         std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
         for (int elemento : list2)
         {
@@ -206,9 +212,7 @@ bool Wfc3D::is3DCompatible(Coords3DInt cell1, Coords3DInt cell2, int pattern1, i
     else if (z1 > z2)
     { // pattern1 arriba de pattern2
         std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(BELOW);
-
         std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(ABOVE);
-
         std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
         for (int elemento : list2)
         {
