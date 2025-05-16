@@ -28,6 +28,7 @@ public:
     void printResult() const;
     std::vector<Coords3DInt> getNeighbors(int x, int y, int z) const;
     bool isValidCell(int x, int y, int z) const;
+    std::vector<std::vector<std::vector<std::set<unsigned int>>>> getMatrix3D() const { return matrix3D; }
 
     // void toGraphic() const; // La representacion grafica se deberia hacer en otra clase
 };

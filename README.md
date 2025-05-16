@@ -66,4 +66,12 @@ Este proyecto está bajo la licencia [MIT](LICENSE).
 * Añadir las distribuciones de probabilidad o frecuencias con las que se van a crear/agregar los objetos
 * Ver programacion dinamica para el recorrido
    * backtracking
-   * memoization
+    * memoization
+
+# Uso:
+> ./build/main.out \<x> \<y> \<z> \<seed>
+
+Ejemplo:
+> ./build/main.out 10 10 5 123
+
+Genera un escenario (Una matriz) de 10 x 10 x 10, usando la semilla `123` en las funciones "rng"
