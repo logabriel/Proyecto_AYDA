@@ -101,12 +101,13 @@ int Wfc3D::collapseCell(Coords3DInt cell)
     int z = cell.z;
 
     std::set<unsigned int> &cell_options = matrix3D[x][y][z];
-    if (cell_options.size() == 1) 
+    if (cell_options.size() == 1)
     {
         return *cell_options.begin(); // La celda ya está colapsada
     }
 
-    if (cell_options.empty()) {
+    if (cell_options.empty())
+    {
         throw std::runtime_error("Celda sin opciones válidas para colapsar.");
     }
 
@@ -300,10 +301,10 @@ bool Wfc3D::propagateConstraints(Coords3DInt cell)
                 {
                     new_possibilities.insert(p);
                 }
-                else
-                {
-                    std::cerr << "NO is3DCompatible en (" << x << ", " << y << ", " << z << ")VS(" << nx << ", " << ny << ", " << nz << ")\t " << current_pattern << " with p:  " << p << "\n";
-                }
+                // else
+                // {
+                //     std::cerr << "NO is3DCompatible en (" << x << ", " << y << ", " << z << ")VS(" << nx << ", " << ny << ", " << nz << ")\t " << current_pattern << " with p:  " << p << "\n";
+                // }
             }
             if (matrix3D[nx][ny][nz].empty())
             {
