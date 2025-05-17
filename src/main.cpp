@@ -63,23 +63,36 @@ Constraint3D wallConstraints(
 //     {EMPTY, FLOOR, WALL, /*CORNER*/}  // Oeste
 // );
 // patterns.emplace_back(3, 1.0, cornerConstraints);
+// int base_wfc()
+// {
 
-Wfc3D generate_and_print_wfc(int x, int y, int z, int seed, std::vector<double> weights)
-{
-    Wfc3D wfc(patterns, weights, {x, y, z}, seed);
+//     patterns.emplace_back(0, 1.0, emptyConstraints);
 
-    if (wfc.executeWfc3D())
-    {
-        std::cout << "Generación 3D completada con éxito!\n";
-        wfc.printResult();
-    }
-    else
-    {
-        std::cout << "La generación 3D falló debido a contradicciones.\n";
-        wfc.printResult();
-    }
-    return wfc;
-}
+//     patterns.emplace_back(1, 1.0, floorConstraints);
+
+//     patterns.emplace_back(2, 5.5, wallConstraints);
+
+//     std::vector<double> weights;
+//     for (const auto &p : patterns)
+//     {
+//         weights.push_back(p.weight);
+//     }
+
+//     // Crear generador 3D (5x5x5)
+//     Wfc3D wfc(patterns, weights, {10, 10, 10}, 500);
+
+//     if (wfc.executeWfc3D())
+//     {
+//         std::cout << "Generación 3D completada con éxito!\n";
+//         wfc.printResult();
+//     }
+//     else
+//     {
+//         std::cout << "La generación 3D falló debido a contradicciones.\n";
+//         wfc.printResult();
+//     }
+//     return wfc;
+// }
 
 int main(int argc, const char **argv)
 {
