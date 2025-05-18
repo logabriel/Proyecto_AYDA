@@ -318,6 +318,7 @@ bool Wfc3D::propagateConstraints(Coords3DInt cell)
             }
         }
     }
+    return false;
 }
 
 bool Wfc3D::executeWfc3D()
