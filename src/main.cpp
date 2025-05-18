@@ -1,8 +1,9 @@
-#include "Wfc3D.hpp"
 #include <vector>
 #include <tuple>
 #include <iostream>
-
+#include "Wfc3D.hpp"
+// #include "raylib.h"
+#include "Visualization.hpp"
 void printWeights(const std::vector<double> &weights)
 {
     std::cout << "Pesos de los patrones:\n";
@@ -20,7 +21,6 @@ void printWeights(const std::vector<double> &weights)
 #define CORNER 3
 
 // 1. Definir patrones 3D y sus restricciones
-std::vector<Object3D> patterns;
 
 // Patrón 0: Empty (vacío)
 Constraint3D emptyConstraints(
@@ -49,19 +49,10 @@ Constraint3D wallConstraints(
     {EMPTY, WALL}, // Sur
     {EMPTY, WALL}  // Oeste
 );
-// Patrón 3: Corner (esquina)
-// Constraint3D cornerConstraints(
-//     {EMPTY},                      // Above
-//     {FLOOR},                      // Below
-//     {EMPTY, FLOOR, WALL, /*CORNER*/}, // Norte
-//     {EMPTY, FLOOR, WALL, /*CORNER*/}, // Este
-//     {EMPTY, FLOOR, WALL, /*CORNER*/}, // Sur
-//     {EMPTY, FLOOR, WALL, /*CORNER*/}  // Oeste
-// );
-// patterns.emplace_back(3, 1.0, cornerConstraints);
 
 int example_wfc()
 {
+    std::vector<Object3D> patterns;
     patterns.emplace_back(0, 1.0, emptyConstraints);
     patterns.emplace_back(1, 1.5, floorConstraints);
     patterns.emplace_back(2, 1.0, wallConstraints);
@@ -90,6 +81,7 @@ int example_wfc()
 
 Wfc3D generate_and_print_wfc(int x, int y, int z, int seed, std::vector<double> weights)
 {
+    std::vector<Object3D> patterns;
     Wfc3D wfc(patterns, weights, {x, y, z}, seed);
 
     if (wfc.executeWfc3D())
@@ -107,7 +99,8 @@ Wfc3D generate_and_print_wfc(int x, int y, int z, int seed, std::vector<double> 
 
 int main(int argc, const char **argv)
 {
-#pragma region Patterns Setup
+#pragma region Patterns/Weights Setup
+    std::vector<Object3D> patterns;
     patterns.emplace_back(0, 1.0, emptyConstraints);
     patterns.emplace_back(1, 1.0, floorConstraints);
     patterns.emplace_back(2, 5.5, wallConstraints);
@@ -130,7 +123,19 @@ int main(int argc, const char **argv)
         int z = std::stoi(argv[3]);
         int seed = std::stoi(argv[4]);
         std::cout << "Generando 3D con dimensiones: " << x << "x" << y << "x" << z << "\n\tSeed: " << seed << std::endl;
-        Wfc3D wfc_result = generate_and_print_wfc(x, y, z, seed, weights);
+
+        Wfc3D wfc(patterns, weights, {x, y, z}, seed);
+        if (wfc.executeWfc3D())
+        {
+            std::cout << "Generación 3D completada con éxito!\n";
+            wfc.printResult();
+        }
+        else
+        {
+            std::cout << "La generación 3D falló debido a contradicciones.\n";
+            wfc.printResult();
+        }
+        display_scene_from_matrix(wfc);
     }
     if (argc != 5)
     {

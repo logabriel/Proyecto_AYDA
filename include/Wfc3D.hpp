@@ -4,6 +4,7 @@
 #include <Object3D.hpp>
 #include <Scene3D.hpp>
 #include <optional>
+#include <tuple>
 class Wfc3D
 {
 private:
@@ -26,6 +27,7 @@ public:
     bool propagateConstraints(Coords3DInt cell);
     bool executeWfc3D();
     void printResult() const;
+    std::tuple<int, int, int> getSizes() const { return std::make_tuple(size_x, size_y, size_z); }
     std::vector<Coords3DInt> getNeighbors(int x, int y, int z) const;
     bool isValidCell(int x, int y, int z) const;
     std::vector<std::vector<std::vector<std::set<unsigned int>>>> getMatrix3D() const { return matrix3D; }
