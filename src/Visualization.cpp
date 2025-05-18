@@ -54,8 +54,8 @@ void display_scene_from_matrix(Wfc3D wfc3d)
 {
 
 #pragma region Visual Setup
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    const int screenWidth = 1000;
+    const int screenHeight = 800;
 
     InitWindow(screenWidth, screenHeight, "WFC 3D Visualization");
     // DisableCursor();
@@ -92,10 +92,10 @@ void display_scene_from_matrix(Wfc3D wfc3d)
                         int pattern = *matrix3D[x][y][z].begin();
                         if (pattern)
                         {
-                            Color cell_color = basic_colors[pattern];
+                            Color cell_color = basic_colors[pattern - 1];
                             Vector3 cube_pos = {static_cast<float>(offset_to_center_x - x), static_cast<float>(z), static_cast<float>(offset_to_center_y - y)};
                             DrawCube(cube_pos, 1.0f, 1.0f, 1.0f, cell_color);
-                            DrawCubeWires(cube_pos, 1.0f, 1.0f, 1.0f, MAGENTA);
+                            DrawCubeWires(cube_pos, 1.0f, 1.0f, 1.0f, BLACK);
                         }
                     }
                     else
