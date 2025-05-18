@@ -9,7 +9,7 @@
             "name": "cppdbg Launch main",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/main.out",
+            "program": "${workspaceFolder}/build/ProyectoWFC",
             "args": [
                 "10",
                 "5",
