@@ -67,11 +67,19 @@ Este proyecto está bajo la licencia [MIT](LICENSE).
 * Ver programacion dinamica para el recorrido
    * backtracking
     * memoization
+# Compilación
+Usando CMake, desde la carpeta root del repo
+```bash
+cmake -B build
+cmake --build build
+```
 
 # Uso:
-> ./build/main.out \<x> \<y> \<z> \<seed>
-
+```bash
+./build/ProyectoWFC \<x> \<y> \<z> \<seed>
+```
 Ejemplo:
-> ./build/main.out 10 10 5 123
-
-Genera un escenario (Una matriz) de 10 x 10 x 10, usando la semilla `123` en las funciones "rng"
+```bash
+./build/ProyectoWFC 10 10 5 123
+```
+Genera un escenario (Una matriz) de 10 ancho x 10 Profundidad x 10 Altura, usando la semilla `123` para las funciones "rng"
