@@ -36,16 +36,6 @@ Constraint3D wallConstraints(
     {EMPTY, WALL}, // Sur
     {EMPTY, WALL}  // Oeste
 );
-// Patrón 3: Corner (esquina)
-// Constraint3D cornerConstraints(
-//     {EMPTY},                      // Above
-//     {FLOOR},                      // Below
-//     {EMPTY, FLOOR, WALL, /*CORNER*/}, // Norte
-//     {EMPTY, FLOOR, WALL, /*CORNER*/}, // Este
-//     {EMPTY, FLOOR, WALL, /*CORNER*/}, // Sur
-//     {EMPTY, FLOOR, WALL, /*CORNER*/}  // Oeste
-// );
-// patterns.emplace_back(3, 1.0, cornerConstraints);
 
 #define AIR 0
 #define WATER 1
