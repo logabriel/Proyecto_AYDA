@@ -32,7 +32,6 @@ public:
     std::vector<std::vector<std::vector<std::set<unsigned int>>>> getMatrix3D() const { return matrix3D; }
 
     //metodos backtracking
-    // Para el backtracking
     std::stack<std::vector<std::vector<std::vector<std::set<unsigned int>>>>> history;
     void saveState();
     bool backtrack();

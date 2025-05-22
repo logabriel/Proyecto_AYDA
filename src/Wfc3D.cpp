@@ -302,6 +302,11 @@ bool Wfc3D::propagateConstraints(Coords3DInt cell)
 
         for (auto [nx, ny, nz] : getNeighbors(x, y, z))
         {
+            if (matrix3D[nx][ny][nz].size() == 1) 
+            {
+                continue;
+            }
+            
             std::set<unsigned int> new_possibilities;
             for (unsigned int p : matrix3D[nx][ny][nz])
             {
@@ -317,6 +322,7 @@ bool Wfc3D::propagateConstraints(Coords3DInt cell)
             if (matrix3D[nx][ny][nz].empty())
             {
                 std::cerr << "No possible result";
+                return true;
             }
 
             if (new_possibilities.size() != matrix3D[nx][ny][nz].size())

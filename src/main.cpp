@@ -213,8 +213,8 @@ int main(int argc, const char **argv)
 //         return 1;
 //     }
 
-    example2_wfc();
-    //example_wfc();
+    //example2_wfc();
+    example_wfc();
 
     return 0;
 }
