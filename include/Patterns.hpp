@@ -57,30 +57,31 @@ Constraint3D airConstraints(
 // Patrón 1: water (agua)
 Constraint3D waterConstraints(
     {WATER, AIR},         // Above
-    {EARTH, SAND, WATER}, // Below
-    {WATER, SAND},        // Norte
-    {WATER, SAND},        // Este
-    {WATER, SAND},        // Sur
-    {WATER, SAND}         // Oeste
+    {EARTH, SAND}, // Below
+    {WATER, SAND, EARTH},        // Norte
+    {WATER, SAND, EARTH},        // Este
+    {WATER, SAND, EARTH},        // Sur
+    {WATER, SAND, EARTH}         // Oeste
 );
 // Patrón 2: earth (tierra)
 Constraint3D earthConstraints(
-    {AIR, EARTH, WATER},       // Above
+    {AIR, SAND, WATER},       // Above
     {EARTH},                   // Below
-    {EARTH, SAND, AIR, WATER}, // Norte
-    {EARTH, SAND, AIR, WATER}, // Este
-    {EARTH, SAND, AIR, WATER}, // Sur
-    {EARTH, SAND, AIR, WATER}  // Oeste
+    {EARTH, SAND, WATER}, // Norte
+    {EARTH, SAND, WATER}, // Este
+    {EARTH, SAND, WATER}, // Sur
+    {EARTH, SAND, WATER}  // Oeste
 );
 // Patrón 3: sand (arena)
 Constraint3D sandConstraints(
     {AIR, SAND, WATER},        // Above
     {SAND, EARTH},             // Below
-    {SAND, EARTH, WATER, AIR}, // Norte
-    {SAND, EARTH, WATER, AIR}, // Este
-    {SAND, EARTH, WATER, AIR}, // Sur
-    {SAND, EARTH, WATER, AIR}  // Oeste
+    {SAND, EARTH, WATER}, // Norte
+    {SAND, EARTH, WATER}, // Este
+    {SAND, EARTH, WATER}, // Sur
+    {SAND, EARTH, WATER}  // Oeste
 );
+
 std::vector<Color> terrain_colors = {
     // AIR 0
     (Color){0, 121, 241, 50}, // WATER 1

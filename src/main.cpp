@@ -48,10 +48,10 @@ int example_wfc()
 Wfc3D terrain_example()
 {
     std::vector<Object3D> patterns;
-    patterns.emplace_back(AIR, 1.0, airConstraints);
-    patterns.emplace_back(WATER, 1.0, waterConstraints);
+    patterns.emplace_back(AIR, 0.5, airConstraints);
+    patterns.emplace_back(WATER, 0.8, waterConstraints);
     patterns.emplace_back(EARTH, 1.0, earthConstraints);
-    patterns.emplace_back(SAND, 1.9, sandConstraints);
+    patterns.emplace_back(SAND, 0.7, sandConstraints);
 
     std::vector<double> weights;
     for (const auto &p : patterns)
@@ -59,7 +59,7 @@ Wfc3D terrain_example()
         weights.push_back(p.weight);
     }
 
-    Wfc3D wfc(patterns, weights, {50, 50, 3}, 123);
+    Wfc3D wfc(patterns, weights, {10, 10, 5}, 123);
     wfc.createBaseLayer(EARTH);
 
     if (wfc.executeWfc3D())
@@ -144,9 +144,9 @@ int main(int argc, const char **argv)
 
         */
     //    example_wfc();
-    // terrain_example();
+    terrain_example();
 
-    display_scene_from_matrix(terrain_example(), terrain_colors);
+    //display_scene_from_matrix(terrain_example(), terrain_colors);
 
     return 0;
 }

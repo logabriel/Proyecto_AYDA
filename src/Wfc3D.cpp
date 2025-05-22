@@ -105,42 +105,34 @@ Coords3DInt Wfc3D::findMinEntropyCell()
 }
 
 // Colapsa una celda a un estado específico
-int Wfc3D::collapseCell(Coords3DInt cell)
+std::optional<unsigned> Wfc3D::attemptCollapse(Coords3DInt cell)
 {
-    int x = cell.x;
-    int y = cell.y;
-    int z = cell.z;
+    auto& currentDecision = decisionStack.top();
+    std::set<unsigned int>& cellOptions = matrix3D[cell.x][cell.y][cell.z];
 
-    std::set<unsigned int> &cell_options = matrix3D[x][y][z];
-    if (cell_options.size() == 1)
+    if (currentDecision.triedPatterns.size() == cellOptions.size())
     {
-        return *cell_options.begin(); // La celda ya está colapsada
+        return std::nullopt;
     }
 
-    if (cell_options.empty())
+    std::vector<unsigned int> remainingOptions;
+    std::set_difference(
+        cellOptions.begin(), cellOptions.end(),
+        currentDecision.triedPatterns.begin(), currentDecision.triedPatterns.end(),
+        std::back_inserter(remainingOptions));
+
+    std::vector<double> optionWeights;
+    for (unsigned int opt : remainingOptions)
     {
-        throw std::runtime_error("Celda sin opciones válidas para colapsar.");
+        optionWeights.push_back(weights[opt]);
     }
 
-    std::vector<int> options(cell_options.begin(), cell_options.end());
-    std::vector<double> option_weights;
+    std::discrete_distribution<int> dist(optionWeights.begin(), optionWeights.end());
+    unsigned int chosen = remainingOptions[dist(rng)];
 
-    double total_weight = 0.0;
-    for (int opt : options)
-    {
-        option_weights.push_back(weights[opt]);
-        total_weight += weights[opt];
-    }
+    currentDecision.triedPatterns.insert(chosen);
 
-    std::vector<double> probabilities;
-    for (double w : option_weights)
-    {
-        probabilities.push_back(w / total_weight);
-    }
-
-    std::discrete_distribution<int> dist(probabilities.begin(), probabilities.end());
-    unsigned int chosen = options[dist(rng)];
-    cell_options = {chosen};
+    matrix3D[cell.x][cell.y][cell.z] = {chosen};
 
     return chosen;
 }
@@ -338,33 +330,34 @@ bool Wfc3D::propagateConstraints(Coords3DInt cell)
     return false;
 }
 
-void Wfc3D::saveState()
+void Wfc3D::saveState(const Coords3DInt& cell)
 {
-    history.push(matrix3D);
+    DecisionPoint dp;
+    dp.cell = cell;
+    dp.history = matrix3D;
+    decisionStack.push(dp);
 }
 
 bool Wfc3D::backtrack()
 {
-    if (history.empty())
+    if (decisionStack.empty() || attempts >= maxAttempts)
     {
         return false;
     }
 
-    matrix3D = history.top();
-    history.pop();
+    DecisionPoint lastDecision = decisionStack.top();
+    decisionStack.pop();
+
+    matrix3D = lastDecision.history;
+    attempts++;
 
     return true;
 }
 
 bool Wfc3D::executeWfc3D()
 {
-    int maxAttempts = 1000;
-    int attempts = 0;
-
     while (attempts < maxAttempts)
     {
-        saveState();
-
         Coords3DInt cell = findMinEntropyCell();
 
         if (cell.x == -1)
@@ -372,24 +365,27 @@ bool Wfc3D::executeWfc3D()
             return true; // todas las celdas han colapsado se detiene el algoritmo
         }
 
-        collapseCell(cell);
-
-        if (propagateConstraints(cell))
+        saveState(cell);
+        auto collapsedPattern = attemptCollapse(cell);
+        if (!collapsedPattern.has_value())
         {
             if (!backtrack())
             {
                 return false;
             }
-            attempts++;
             continue;
         }
 
-        if (history.size() > 50)
-        {
-            break;
+        if (propagateConstraints(cell)) {
+            matrix3D = decisionStack.top().history;
+            if (!attemptCollapse(cell).has_value())
+            {
+                if (!backtrack())
+                {
+                    return false;
+                }
+            }
         }
-
-        attempts = 0;
     }
 
     return false;
