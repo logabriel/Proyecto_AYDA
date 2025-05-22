@@ -1,3 +1,4 @@
+#pragma once
 #include "raylib.h"
 #include "resource_dir.h" // utility header for SearchAndSetResourceDir
 #include "Wfc3D.hpp"
@@ -27,6 +28,4 @@
 //                              MAGENTA,
 //                              RAYWHITE};
 
-int raylib_demo();
-
-void display_scene_from_matrix(Wfc3D wfc3d);
+void display_scene_from_matrix(Wfc3D wfc3d, std::vector<Color> display_colors);
