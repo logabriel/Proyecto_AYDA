@@ -5,6 +5,6 @@
 #include "Visualization.hpp"
 int main()
 {
-    raylib_demo();
+
     return 0;
 }
