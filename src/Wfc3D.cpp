@@ -32,6 +32,17 @@ Wfc3D::~Wfc3D()
 {
 }
 
+void Wfc3D::createBaseLayer(unsigned int patternId)
+{
+    for (int x = 0; x < size_x; ++x)
+    {
+        for (int y = 0; y < size_y; ++y)
+        {
+            matrix3D[x][y][0] = {patternId};
+        }
+    }
+}
+
 void Wfc3D::initializeMatrix3D() noexcept
 {
     matrix3D.resize(size_x, std::vector<std::vector<std::set<unsigned int>>>(size_y, std::vector<std::set<unsigned int>>(size_z)));
@@ -42,7 +53,7 @@ void Wfc3D::initializeMatrix3D() noexcept
         {
             for (int k = 0; k < size_z; ++k)
             {
-                for (int p = 0; p < patterns.size(); ++p)
+                for (unsigned int p = 0; p < patterns.size(); ++p)
                 {
                     matrix3D[i][j][k].insert(p); // para cada celda se inicializa con todas las opciones de cubos que esta puede tener
                 }
@@ -294,8 +305,13 @@ bool Wfc3D::propagateConstraints(Coords3DInt cell)
 
         for (auto [nx, ny, nz] : getNeighbors(x, y, z))
         {
+            if (matrix3D[nx][ny][nz].size() == 1)
+            {
+                continue;
+            }
+
             std::set<unsigned int> new_possibilities;
-            for (unsigned p : matrix3D[nx][ny][nz])
+            for (unsigned int p : matrix3D[nx][ny][nz])
             {
                 if (is3DCompatible({x, y, z}, {nx, ny, nz}, current_pattern, p))
                 {
@@ -309,6 +325,7 @@ bool Wfc3D::propagateConstraints(Coords3DInt cell)
             if (matrix3D[nx][ny][nz].empty())
             {
                 std::cerr << "No possible result";
+                return true;
             }
 
             if (new_possibilities.size() != matrix3D[nx][ny][nz].size())
@@ -321,42 +338,61 @@ bool Wfc3D::propagateConstraints(Coords3DInt cell)
     return false;
 }
 
+void Wfc3D::saveState()
+{
+    history.push(matrix3D);
+}
+
+bool Wfc3D::backtrack()
+{
+    if (history.empty())
+    {
+        return false;
+    }
+
+    matrix3D = history.top();
+    history.pop();
+
+    return true;
+}
+
 bool Wfc3D::executeWfc3D()
 {
-    while (true)
+    int maxAttempts = 1000;
+    int attempts = 0;
+
+    while (attempts < maxAttempts)
     {
+        saveState();
+
         Coords3DInt cell = findMinEntropyCell();
+
         if (cell.x == -1)
         {
             return true; // todas las celdas han colapsado se detiene el algoritmo
         }
 
         collapseCell(cell);
-        bool foundContradiction = propagateConstraints(cell);
 
-        // bool contradiction = false;
-        // for (int x = 0; x < size_x && !contradiction; ++x)
-        // {
-        //     for (int y = 0; y < size_y && !contradiction; ++y)
-        //     {
-        //         for (int z = 0; z < size_z && !contradiction; ++z)
-        //         {
-        //             if (matrix3D[x][y][z].empty())
-        //             {
-        //                 contradiction = true;
-        //             }
-        //         }
-        //     }
-        // }
-
-        if (foundContradiction)
+        if (propagateConstraints(cell))
         {
-            std::cout << "¡Contradicción 3D encontrada!" << std::endl;
-            return false;
+            if (!backtrack())
+            {
+                return false;
+            }
+            attempts++;
+            continue;
         }
+
+        if (history.size() > 50)
+        {
+            break;
+        }
+
+        attempts = 0;
     }
 
-    return true;
+    return false;
 }
 
 void Wfc3D::printResult() const
