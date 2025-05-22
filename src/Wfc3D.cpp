@@ -243,7 +243,7 @@ struct EntropyComparator
 {
     const std::vector<std::vector<std::vector<std::set<unsigned int>>>> &matrix3D;
 
-    EntropyComparator(const decltype(matrix3D) &matrix) : matrix3D(matrix) {}
+    EntropyComparator(decltype(matrix3D) &matrix) : matrix3D(matrix) {}
 
     bool operator()(const Coords3DInt &a, const Coords3DInt &b) const
     {

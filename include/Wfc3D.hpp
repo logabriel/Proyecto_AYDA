@@ -6,6 +6,7 @@
 #include <Scene3D.hpp>
 #include <optional>
 #include <stack>
+#include <tuple>
 class Wfc3D
 {
 private:
