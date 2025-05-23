@@ -26,7 +26,7 @@ private:
     void initializeMatrix3D() noexcept;
     Coords3DInt findMinEntropyCell();
     std::optional<unsigned> attemptCollapse(Coords3DInt cell_position);
-    bool is3DCompatible(Coords3DInt cell1, Coords3DInt cell2, int pattern1, int pattern2);
+    //bool is3DCompatible(Coords3DInt cell1, Coords3DInt cell2, int pattern1, int pattern2);
     bool is3DCompatible(Coords3DInt cell_position);
     bool propagateConstraints(Coords3DInt cell);
     std::vector<Coords3DInt> getNeighbors(int x, int y, int z) const;
@@ -47,4 +47,5 @@ public:
     void createBaseLayer(unsigned int patternId);
     std::tuple<int, int, int> getSizes() const { return std::make_tuple(size_x, size_y, size_z); }
     std::vector<std::vector<std::vector<std::set<unsigned int>>>> getMatrix3D() const { return matrix3D; }
+    bool is3DCompatible(Coords3DInt cell1, Coords3DInt cell2, int pattern1, int pattern2);
 };

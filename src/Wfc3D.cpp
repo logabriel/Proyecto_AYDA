@@ -142,93 +142,24 @@ bool Wfc3D::is3DCompatible(Coords3DInt cell1, Coords3DInt cell2, int pattern1, i
     auto [x1, y1, z1] = cell1;
     auto [x2, y2, z2] = cell2;
 
+    RelativeDirection direction;
     if (x1 < x2)
-    { // pattern1 a la izquierda de pattern2
-        std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(EAST);
-        std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(WEST);
-        std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
-
-        for (int elemento : list2)
-        {
-            if (elementosLista1.count(elemento))
-            {
-                return true; // Hay al menos un elemento en común
-            }
-        }
-        return false;
-    }
+        direction = EAST;
     else if (x1 > x2)
-    { // pattern1 a la derecha de pattern2
-        std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(WEST);
-        std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(EAST);
-        std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
-        for (int elemento : list2)
-        {
-            if (elementosLista1.count(elemento))
-            {
-                return true; // Hay al menos un elemento en común
-            }
-        }
-        return false;
-    }
+        direction = WEST;
     else if (y1 < y2)
-    { // pattern1 frente de pattern2
-        std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(NORTH);
-        std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(SOUTH);
-        std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
-        for (int elemento : list2)
-        {
-            if (elementosLista1.count(elemento))
-            {
-                return true; // Hay al menos un elemento en común
-            }
-        }
-        return false;
-    }
+        direction = NORTH;
     else if (y1 > y2)
-    { // pattern1 atras de pattern2
-        std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(SOUTH);
-        std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(NORTH);
-        std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
-        for (int elemento : list2)
-        {
-            if (elementosLista1.count(elemento))
-            {
-                return true; // Hay al menos un elemento en común
-            }
-        }
-        return false;
-    }
+        direction = SOUTH;
     else if (z1 < z2)
-    { // pattern1 abajo de pattern2
-        std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(ABOVE);
-        std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(BELOW);
-        std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
-        for (int elemento : list2)
-        {
-            if (elementosLista1.count(elemento))
-            {
-                return true; // Hay al menos un elemento en común
-            }
-        }
-        return false;
-    }
+        direction = ABOVE;
     else if (z1 > z2)
-    { // pattern1 arriba de pattern2
-        std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(BELOW);
-        std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(ABOVE);
-        std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
-        for (int elemento : list2)
-        {
-            if (elementosLista1.count(elemento))
-            {
-                return true; // Hay al menos un elemento en común
-            }
-        }
-        return false;
-    }
+        direction = BELOW;
+    else
+        return true; 
 
-    return false;
+    const auto &allowed = patterns[pattern1].constraints.get_constraints_for_direction(direction);
+    return std::find(allowed.begin(), allowed.end(), pattern2) != allowed.end();
 }
 
 struct EntropyComparator
