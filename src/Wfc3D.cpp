@@ -32,6 +32,17 @@ Wfc3D::~Wfc3D()
 {
 }
 
+void Wfc3D::createBaseLayer(unsigned int patternId)
+{
+    for (int x = 0; x < size_x; ++x)
+    {
+        for (int y = 0; y < size_y; ++y)
+        {
+            matrix3D[x][y][0] = {patternId};
+        }
+    }
+}
+
 void Wfc3D::initializeMatrix3D() noexcept
 {
     matrix3D.resize(size_x, std::vector<std::vector<std::set<unsigned int>>>(size_y, std::vector<std::set<unsigned int>>(size_z)));
@@ -42,7 +53,7 @@ void Wfc3D::initializeMatrix3D() noexcept
         {
             for (int k = 0; k < size_z; ++k)
             {
-                for (int p = 0; p < patterns.size(); ++p)
+                for (unsigned int p = 0; p < patterns.size(); ++p)
                 {
                     matrix3D[i][j][k].insert(p); // para cada celda se inicializa con todas las opciones de cubos que esta puede tener
                 }
@@ -93,43 +104,42 @@ Coords3DInt Wfc3D::findMinEntropyCell()
     return minEntropyCells[dist(rng)];
 }
 
-// Colapsa una celda a un estado específico
-int Wfc3D::collapseCell(Coords3DInt cell)
+/**
+ * Intenta colapsar una celda en un patrón específico.
+ * Si ya se han intentado todos los patrones posibles para esta celda, se devuelve std::nullopt.
+ * En caso contrario, se selecciona un patrón al azar (Segun los pesos de probabilidad) de entre las opciones restantes y se colapsa la celda a ese patrón.
+ * @param cell la celda a colapsar
+ * @return el patrón escogido o std::nullopt si no se pudo colapsar.
+ */
+std::optional<unsigned> Wfc3D::attemptCollapse(Coords3DInt cell)
 {
-    int x = cell.x;
-    int y = cell.y;
-    int z = cell.z;
+    auto &currentDecision = decisionStack.top();
+    std::set<unsigned int> &cellOptions = matrix3D[cell.x][cell.y][cell.z];
 
-    std::set<unsigned int> &cell_options = matrix3D[x][y][z];
-    if (cell_options.size() == 1)
+    if (currentDecision.triedPatterns.size() == cellOptions.size())
     {
-        return *cell_options.begin(); // La celda ya está colapsada
+        return std::nullopt;
     }
 
-    if (cell_options.empty())
+    std::vector<unsigned int> remainingOptions;
+    std::set_difference(
+        cellOptions.begin(), cellOptions.end(),
+        currentDecision.triedPatterns.begin(), currentDecision.triedPatterns.end(),
+        std::back_inserter(remainingOptions));
+
+    if (remainingOptions.empty())
+        return std::nullopt;
+    std::vector<double> optionWeights;
+    for (unsigned int opt : remainingOptions)
     {
-        throw std::runtime_error("Celda sin opciones válidas para colapsar.");
+        optionWeights.push_back(weights[opt]);
     }
+    std::discrete_distribution<int> dist(optionWeights.begin(), optionWeights.end());
+    unsigned int chosen = remainingOptions[dist(rng)];
 
-    std::vector<int> options(cell_options.begin(), cell_options.end());
-    std::vector<double> option_weights;
+    currentDecision.triedPatterns.insert(chosen);
 
-    double total_weight = 0.0;
-    for (int opt : options)
-    {
-        option_weights.push_back(weights[opt]);
-        total_weight += weights[opt];
-    }
-
-    std::vector<double> probabilities;
-    for (double w : option_weights)
-    {
-        probabilities.push_back(w / total_weight);
-    }
-
-    std::discrete_distribution<int> dist(probabilities.begin(), probabilities.end());
-    unsigned int chosen = options[dist(rng)];
-    cell_options = {chosen};
+    matrix3D[cell.x][cell.y][cell.z] = {chosen};
 
     return chosen;
 }
@@ -139,100 +149,31 @@ bool Wfc3D::is3DCompatible(Coords3DInt cell1, Coords3DInt cell2, int pattern1, i
     auto [x1, y1, z1] = cell1;
     auto [x2, y2, z2] = cell2;
 
+    RelativeDirection direction;
     if (x1 < x2)
-    { // pattern1 a la izquierda de pattern2
-        std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(EAST);
-        std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(WEST);
-        std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
-
-        for (int elemento : list2)
-        {
-            if (elementosLista1.count(elemento))
-            {
-                return true; // Hay al menos un elemento en común
-            }
-        }
-        return false;
-    }
+        direction = EAST;
     else if (x1 > x2)
-    { // pattern1 a la derecha de pattern2
-        std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(WEST);
-        std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(EAST);
-        std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
-        for (int elemento : list2)
-        {
-            if (elementosLista1.count(elemento))
-            {
-                return true; // Hay al menos un elemento en común
-            }
-        }
-        return false;
-    }
+        direction = WEST;
     else if (y1 < y2)
-    { // pattern1 frente de pattern2
-        std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(NORTH);
-        std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(SOUTH);
-        std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
-        for (int elemento : list2)
-        {
-            if (elementosLista1.count(elemento))
-            {
-                return true; // Hay al menos un elemento en común
-            }
-        }
-        return false;
-    }
+        direction = NORTH;
     else if (y1 > y2)
-    { // pattern1 atras de pattern2
-        std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(SOUTH);
-        std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(NORTH);
-        std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
-        for (int elemento : list2)
-        {
-            if (elementosLista1.count(elemento))
-            {
-                return true; // Hay al menos un elemento en común
-            }
-        }
-        return false;
-    }
+        direction = SOUTH;
     else if (z1 < z2)
-    { // pattern1 abajo de pattern2
-        std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(ABOVE);
-        std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(BELOW);
-        std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
-        for (int elemento : list2)
-        {
-            if (elementosLista1.count(elemento))
-            {
-                return true; // Hay al menos un elemento en común
-            }
-        }
-        return false;
-    }
+        direction = ABOVE;
     else if (z1 > z2)
-    { // pattern1 arriba de pattern2
-        std::vector<unsigned int> list1 = patterns[pattern1].constraints.get_constraints_for_direction(BELOW);
-        std::vector<unsigned int> list2 = patterns[pattern2].constraints.get_constraints_for_direction(ABOVE);
-        std::unordered_set<int> elementosLista1(list1.begin(), list1.end());
-        for (int elemento : list2)
-        {
-            if (elementosLista1.count(elemento))
-            {
-                return true; // Hay al menos un elemento en común
-            }
-        }
-        return false;
-    }
+        direction = BELOW;
+    else
+        return true;
 
-    return false;
+    const auto &allowed = patterns[pattern1].constraints.get_constraints_for_direction(direction);
+    return std::find(allowed.begin(), allowed.end(), pattern2) != allowed.end();
 }
 
 struct EntropyComparator
 {
     const std::vector<std::vector<std::vector<std::set<unsigned int>>>> &matrix3D;
 
-    EntropyComparator(const decltype(matrix3D) &matrix) : matrix3D(matrix) {}
+    EntropyComparator(decltype(matrix3D) &matrix) : matrix3D(matrix) {}
 
     bool operator()(const Coords3DInt &a, const Coords3DInt &b) const
     {
@@ -274,6 +215,18 @@ bool Wfc3D::isValidCell(int x, int y, int z) const
            (z >= 0 && z < size_z);
 }
 
+/**
+ * @brief Propaga las restricciones de un cubo a sus vecinos.
+ *
+ * Se encarga de propagar las restricciones de un cubo a sus vecinos, es
+ * decir, si un cubo ha colapsado a un patrón, se encarga de reducir las
+ * posibilidades de los vecinos que no son compatibles con ese patrón.
+ *
+ * @param cell La celda que se va a propagar
+ *
+ * @return true si se ha detectado una contradicción, false en caso
+ *         contrario
+ */
 bool Wfc3D::propagateConstraints(Coords3DInt cell)
 {
     std::queue<Coords3DInt> queue;
@@ -294,21 +247,23 @@ bool Wfc3D::propagateConstraints(Coords3DInt cell)
 
         for (auto [nx, ny, nz] : getNeighbors(x, y, z))
         {
+            if (matrix3D[nx][ny][nz].size() == 1)
+            {
+                continue;
+            }
+
             std::set<unsigned int> new_possibilities;
-            for (unsigned p : matrix3D[nx][ny][nz])
+            for (unsigned int p : matrix3D[nx][ny][nz])
             {
                 if (is3DCompatible({x, y, z}, {nx, ny, nz}, current_pattern, p))
                 {
                     new_possibilities.insert(p);
                 }
-                // else
-                // {
-                //     std::cerr << "NO is3DCompatible en (" << x << ", " << y << ", " << z << ")VS(" << nx << ", " << ny << ", " << nz << ")\t " << current_pattern << " with p:  " << p << "\n";
-                // }
             }
             if (matrix3D[nx][ny][nz].empty())
             {
                 std::cerr << "No possible result";
+                return true;
             }
 
             if (new_possibilities.size() != matrix3D[nx][ny][nz].size())
@@ -321,42 +276,71 @@ bool Wfc3D::propagateConstraints(Coords3DInt cell)
     return false;
 }
 
+void Wfc3D::saveState(const Coords3DInt &cell)
+{
+    DecisionPoint dp;
+    dp.cell = cell;
+    dp.history = matrix3D;
+    decisionStack.push(dp);
+}
+
+bool Wfc3D::backtrack()
+{
+
+    if (decisionStack.empty() || attempts >= maxAttempts)
+    {
+        std::cerr << "\tDIDNT Backtracked!\n";
+        return false;
+    }
+
+    DecisionPoint lastDecision = decisionStack.top();
+    decisionStack.pop();
+
+    matrix3D = lastDecision.history;
+    attempts++;
+    std::cerr << "\tBacktracked!\n";
+
+    return true;
+}
+
 bool Wfc3D::executeWfc3D()
 {
-    while (true)
+    while (attempts < maxAttempts)
     {
         Coords3DInt cell = findMinEntropyCell();
+
         if (cell.x == -1)
         {
             return true; // todas las celdas han colapsado se detiene el algoritmo
         }
 
-        collapseCell(cell);
-        bool foundContradiction = propagateConstraints(cell);
-
-        // bool contradiction = false;
-        // for (int x = 0; x < size_x && !contradiction; ++x)
-        // {
-        //     for (int y = 0; y < size_y && !contradiction; ++y)
-        //     {
-        //         for (int z = 0; z < size_z && !contradiction; ++z)
-        //         {
-        //             if (matrix3D[x][y][z].empty())
-        //             {
-        //                 contradiction = true;
-        //             }
-        //         }
-        //     }
-        // }
-
-        if (foundContradiction)
+        saveState(cell);
+        auto collapsedPattern = attemptCollapse(cell);
+        if (!collapsedPattern.has_value())
         {
-            std::cout << "¡Contradicción 3D encontrada!" << std::endl;
-            return false;
+            std::cerr << "[395] Should backtrack now...\n";
+            if (!backtrack())
+            {
+                return false;
+            }
+            continue;
+        }
+
+        if (propagateConstraints(cell)) // IF hay contradiccion
+        {
+            matrix3D = decisionStack.top().history;
+            if (!attemptCollapse(cell).has_value())
+            {
+                std::cerr << "[408]Should backtrack now...\n";
+                if (!backtrack())
+                {
+                    return false;
+                }
+            }
         }
     }
 
-    return true;
+    return false;
 }
 
 void Wfc3D::printResult() const
