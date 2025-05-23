@@ -1,10 +1,10 @@
 # Generación Procedural de Ambientes usando Satisfacción de Restricciones
 
-Este proyecto implementa un sistema para generar mundos 3D proceduralmente mediante el uso de un tileset y técnicas de satisfacción de restricciones, inspirado en algoritmos como **Model Synthesis** y **Wave Function Collapse (WFC)**.
+Este proyecto implementa un sistema para generar mundos 3D proceduralmente mediante el uso de objetos 3D con técnicas de satisfacción de restricciones, inspirado en algoritmos como **Model Synthesis** y **Wave Function Collapse (WFC)**.
 
 ## Descripción
 
-El sistema genera ambientes 3D a partir de un tileset dado, aplicando reglas de construcción basadas en restricciones. Estas reglas pueden ser definidas manualmente o inferidas automáticamente a partir de un ejemplo de referencia.
+El sistema genera ambientes 3D a partir de Reglas Establecidas, las reglas defines las posibilidades de que `X` objeto tenga como vecino `Y` objeto en las seis direcciones directamente adjacentes
 
 El enfoque se basa en:
 - **Wave Function Collapse (WFC)**: Un algoritmo popularizado en videojuegos como *Bad North*, *Townscaper* y *Matrix Awakens*.
@@ -33,8 +33,9 @@ El enfoque se basa en:
 
 El proyecto incluye:
 - Un generador de ambientes basado en WFC.
-- Soporte para tilesets 3D.
+- Visualizacion del Escenario basado en bloques 3D.
 
+### Diagrama Base del Algoritmo
 ```mermaid
 flowchart TD
     A["Start"] --> B("Initialize empty Scene")
@@ -45,6 +46,28 @@ flowchart TD
     G--> C
     C--Scene Is Solved-->H[Return Scene object]
 ```
+
+### Con Backtracking
+```mermaid
+flowchart TD
+    A["Start"] --> B("Initialize empty Scene")
+    B --> C{"While:"}
+    C --  Attempts < MaxAttempts --> Z[Find Least Entropy Cell]
+    Z-->if{Is the scene Solved?}
+    if -- YES --> H
+
+    if -- NO --> SV["Save State"]
+    SV--> F["Attempt to Collpase Cell"]
+    F--> DC{"Did Cell Collapse Correctly"}
+    DC--NO-->Backtrack-->F
+    DC --YES--> G[Propagate Constraints]
+    G --> CONS{Were Constraints PropagagatedCorrectly?}
+    CONS-- NO-->BTC[BackTrack Constraints]
+    CONS -- YES --> C
+    BTC --> F
+    H[Return Scene object]
+```
+
 ## Ejemplos y Demos
 
 ### Videos Relacionados
@@ -62,9 +85,7 @@ flowchart TD
 
 Este proyecto está bajo la licencia [MIT](LICENSE).
 
-# TO-DO
-* Ver programacion dinamica para el recorrido
-    * memoization
+
 # Compilación
 Usando CMake, desde la carpeta root del repo
 ```bash
@@ -76,8 +97,13 @@ cmake --build build
 ```bash
 ./build/ProyectoWFC \<x> \<y> \<z> \<seed>
 ```
-Ejemplo:
+Ejemplo de uso:
 ```bash
 ./build/ProyectoWFC 10 10 5 123
 ```
 Genera un escenario (Una matriz) de 10 ancho x 10 Profundidad x 10 Altura, usando la semilla `123` para las funciones "rng"
+
+ó, para ver varios ejemplos predeterminados
+```
+./RunExamples.sh
+```
