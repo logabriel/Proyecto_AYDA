@@ -87,6 +87,17 @@ Este proyecto está bajo la licencia [MIT](LICENSE).
 
 
 # Compilación
+
+## Requermimientos
+Para Raylib
+```
+libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev cmake
+```
+
+Se pueden instalar con:
+`sudo apt-get update && sudo apt-get install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev cmake`
+
+
 Usando CMake, desde la carpeta root del repo
 ```bash
 cmake -B build
