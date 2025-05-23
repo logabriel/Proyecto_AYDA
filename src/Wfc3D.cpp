@@ -163,7 +163,7 @@ bool Wfc3D::is3DCompatible(Coords3DInt cell1, Coords3DInt cell2, int pattern1, i
     else if (z1 > z2)
         direction = BELOW;
     else
-        return true; 
+        return true;
 
     const auto &allowed = patterns[pattern1].constraints.get_constraints_for_direction(direction);
     return std::find(allowed.begin(), allowed.end(), pattern2) != allowed.end();
@@ -269,11 +269,6 @@ bool Wfc3D::propagateConstraints(Coords3DInt cell)
             if (new_possibilities.size() != matrix3D[nx][ny][nz].size())
             {
                 matrix3D[nx][ny][nz] = new_possibilities;
-                // if (matrix3D[nx][ny][nz].empty())
-                // {
-                //     std::cerr << "No possible result for Neighbor\n";
-                //     return true;
-                // }
                 queue.push({nx, ny, nz});
             }
         }
