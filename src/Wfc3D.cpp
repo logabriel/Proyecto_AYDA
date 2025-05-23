@@ -289,7 +289,6 @@ bool Wfc3D::backtrack()
 
     if (decisionStack.empty() || attempts >= maxAttempts)
     {
-        std::cerr << "\tDIDNT Backtracked!\n";
         return false;
     }
 
@@ -298,7 +297,6 @@ bool Wfc3D::backtrack()
 
     matrix3D = lastDecision.history;
     attempts++;
-    std::cerr << "\tBacktracked!\n";
 
     return true;
 }
@@ -318,7 +316,6 @@ bool Wfc3D::executeWfc3D()
         auto collapsedPattern = attemptCollapse(cell);
         if (!collapsedPattern.has_value())
         {
-            std::cerr << "[395] Should backtrack now...\n";
             if (!backtrack())
             {
                 return false;
@@ -331,7 +328,6 @@ bool Wfc3D::executeWfc3D()
             matrix3D = decisionStack.top().history;
             if (!attemptCollapse(cell).has_value())
             {
-                std::cerr << "[408]Should backtrack now...\n";
                 if (!backtrack())
                 {
                     return false;
