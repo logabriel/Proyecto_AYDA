@@ -17,17 +17,18 @@ void printWeights(const std::vector<double> &weights)
     std::cout << "--------------------------\n";
 }
 
-void test1Compatibility() {
+void test1Compatibility()
+{
     // Configura patrones de prueba
     Object3D patternA(0, 1.0, Constraint3D({1}, {}, {}, {}, {}, {})); // A solo permite B arriba
     Object3D patternB(1, 1.0, Constraint3D({}, {0}, {}, {}, {}, {})); // B solo permite A abajo
 
-    Wfc3D wfc({patternA, patternB}, {1.0, 1.0}, {1,1,1});
+    Wfc3D wfc({patternA, patternB}, {1.0, 1.0}, {1, 1, 1});
 
     // Pruebas de compatibilidad
-    bool ab = wfc.is3DCompatible({0,0,0}, {0,0,1}, 0, 1); // A con B arriba
-    bool ba = wfc.is3DCompatible({0,0,1}, {0,0,0}, 1, 0); // B con A abajo
-    bool ba_wrong = wfc.is3DCompatible({0,0,0}, {0,0,1}, 1, 0); // B no puede estar arriba de A
+    bool ab = wfc.is3DCompatible({0, 0, 0}, {0, 0, 1}, 0, 1);       // A con B arriba
+    bool ba = wfc.is3DCompatible({0, 0, 1}, {0, 0, 0}, 1, 0);       // B con A abajo
+    bool ba_wrong = wfc.is3DCompatible({0, 0, 0}, {0, 0, 1}, 1, 0); // B no puede estar arriba de A
 
     std::cout << "Compatibilidad A (abajo) con B (arriba): " << (ab ? "Compatible" : "No compatible") << std::endl;
     std::cout << "Compatibilidad B (arriba) con A (abajo): " << (ba ? "Compatible" : "No compatible") << std::endl;
@@ -44,15 +45,15 @@ void test2Compatibility()
     Object3D patternA(0, 1.0, Constraint3D({1}, {1}, {1}, {1}, {1}, {1})); // A permite B en todas direcciones
     Object3D patternB(1, 1.0, Constraint3D({0}, {0}, {0}, {0}, {0}, {0})); // B permite A en todas direcciones
 
-    Wfc3D wfc({patternA, patternB}, {1.0, 1.0}, {1,1,1});
+    Wfc3D wfc({patternA, patternB}, {1.0, 1.0}, {1, 1, 1});
 
-    Coords3DInt c = {0,0,0};
-    Coords3DInt up    = {0,0,1};
-    Coords3DInt down  = {0,0,-1};
-    Coords3DInt north = {0,1,0};
-    Coords3DInt south = {0,-1,0};
-    Coords3DInt east  = {1,0,0};
-    Coords3DInt west  = {-1,0,0};
+    Coords3DInt c = {0, 0, 0};
+    Coords3DInt up = {0, 0, 1};
+    Coords3DInt down = {0, 0, -1};
+    Coords3DInt north = {0, 1, 0};
+    Coords3DInt south = {0, -1, 0};
+    Coords3DInt east = {1, 0, 0};
+    Coords3DInt west = {-1, 0, 0};
 
     std::cout << "Compatibilidad A con B en las seis direcciones:\n";
     std::cout << "Arriba (A abajo, B arriba): " << (wfc.is3DCompatible(c, up, 0, 1) ? "Compatible" : "No compatible") << std::endl;
@@ -69,21 +70,21 @@ void test2Compatibility()
     std::cout << "Sur (B norte, A sur):      " << (wfc.is3DCompatible(c, south, 1, 0) ? "Compatible" : "No compatible") << std::endl;
     std::cout << "Este (B oeste, A este):    " << (wfc.is3DCompatible(c, east, 1, 0) ? "Compatible" : "No compatible") << std::endl;
     std::cout << "Oeste (B este, A oeste):   " << (wfc.is3DCompatible(c, west, 1, 0) ? "Compatible" : "No compatible") << std::endl;
-
 }
 
-void testNoCompatibility() {
+void testNoCompatibility()
+{
     // Cada patrón no permite ningún otro (ni a sí mismo) en ninguna dirección
     Object3D patternA(0, 1.0, Constraint3D({}, {}, {}, {}, {}, {}));
     Object3D patternB(1, 1.0, Constraint3D({}, {}, {}, {}, {}, {}));
 
-    Wfc3D wfc({patternA, patternB}, {1.0, 1.0}, {2,2,2});
+    Wfc3D wfc({patternA, patternB}, {1.0, 1.0}, {2, 2, 2});
 
     // Pruebas de compatibilidad
-    bool ab = wfc.is3DCompatible({0,0,0}, {0,0,1}, 0, 1);
-    bool aa = wfc.is3DCompatible({0,0,0}, {0,0,1}, 0, 0);
-    bool ba = wfc.is3DCompatible({0,0,0}, {0,0,1}, 1, 0);
-    bool bb = wfc.is3DCompatible({0,0,0}, {0,0,1}, 1, 1);
+    bool ab = wfc.is3DCompatible({0, 0, 0}, {0, 0, 1}, 0, 1);
+    bool aa = wfc.is3DCompatible({0, 0, 0}, {0, 0, 1}, 0, 0);
+    bool ba = wfc.is3DCompatible({0, 0, 0}, {0, 0, 1}, 1, 0);
+    bool bb = wfc.is3DCompatible({0, 0, 0}, {0, 0, 1}, 1, 1);
 
     std::cout << "Compatibilidad A con B: " << (ab ? "Compatible" : "No compatible") << std::endl;
     std::cout << "Compatibilidad A con A: " << (aa ? "Compatible" : "No compatible") << std::endl;
@@ -91,9 +92,12 @@ void testNoCompatibility() {
     std::cout << "Compatibilidad B con B: " << (bb ? "Compatible" : "No compatible") << std::endl;
 
     // Si ejecutas el WFC, debe fallar por contradicción
-    if (!wfc.executeWfc3D()) {
+    if (!wfc.executeWfc3D())
+    {
         std::cout << "Correcto: El WFC falló por contradicción, como se esperaba.\n";
-    } else {
+    }
+    else
+    {
         std::cout << "Error: El WFC no debería haber generado una solución.\n";
     }
 }
@@ -131,7 +135,7 @@ Wfc3D terrain_example()
 {
     std::vector<Object3D> patterns;
     patterns.emplace_back(AIR, 0.5, airConstraints);
-    patterns.emplace_back(WATER, 0.8, waterConstraints);
+    patterns.emplace_back(WATER, 0.9, waterConstraints);
     patterns.emplace_back(EARTH, 1.0, earthConstraints);
     patterns.emplace_back(SAND, 0.7, sandConstraints);
 
@@ -141,7 +145,8 @@ Wfc3D terrain_example()
         weights.push_back(p.weight);
     }
 
-    Wfc3D wfc(patterns, weights, {10, 10, 10}, 100);
+    // Wfc3D wfc(patterns, weights, {10, 10, 5}, 123);
+    Wfc3D wfc(patterns, weights, {10, 10, 10}, 100); // Floating cubes
     wfc.createBaseLayer(EARTH);
 
     if (wfc.executeWfc3D())
@@ -152,7 +157,7 @@ Wfc3D terrain_example()
     else
     {
         std::cout << "La generación 3D falló debido a contradicciones.\n";
-        wfc.printResult();
+        // wfc.printResult();
     }
 
     return wfc;
@@ -226,11 +231,9 @@ int main(int argc, const char **argv)
 
         */
     //    example_wfc();
-    //terrain_example();std::cout << "\n";
-    display_scene_from_matrix(terrain_example(), terrain_colors);
+    // terrain_example();
 
-    //test2Compatibility();
-    //testNoCompatibility();
+    display_scene_from_matrix(terrain_example(), terrain_colors);
 
     return 0;
 }

@@ -104,11 +104,17 @@ Coords3DInt Wfc3D::findMinEntropyCell()
     return minEntropyCells[dist(rng)];
 }
 
-// Colapsa una celda a un estado específico
+/**
+ * Intenta colapsar una celda en un patrón específico.
+ * Si ya se han intentado todos los patrones posibles para esta celda, se devuelve std::nullopt.
+ * En caso contrario, se selecciona un patrón al azar (Segun los pesos de probabilidad) de entre las opciones restantes y se colapsa la celda a ese patrón.
+ * @param cell la celda a colapsar
+ * @return el patrón escogido o std::nullopt si no se pudo colapsar.
+ */
 std::optional<unsigned> Wfc3D::attemptCollapse(Coords3DInt cell)
 {
-    auto& currentDecision = decisionStack.top();
-    std::set<unsigned int>& cellOptions = matrix3D[cell.x][cell.y][cell.z];
+    auto &currentDecision = decisionStack.top();
+    std::set<unsigned int> &cellOptions = matrix3D[cell.x][cell.y][cell.z];
 
     if (currentDecision.triedPatterns.size() == cellOptions.size())
     {
@@ -121,12 +127,13 @@ std::optional<unsigned> Wfc3D::attemptCollapse(Coords3DInt cell)
         currentDecision.triedPatterns.begin(), currentDecision.triedPatterns.end(),
         std::back_inserter(remainingOptions));
 
+    if (remainingOptions.empty())
+        return std::nullopt;
     std::vector<double> optionWeights;
     for (unsigned int opt : remainingOptions)
     {
         optionWeights.push_back(weights[opt]);
     }
-
     std::discrete_distribution<int> dist(optionWeights.begin(), optionWeights.end());
     unsigned int chosen = remainingOptions[dist(rng)];
 
@@ -208,6 +215,18 @@ bool Wfc3D::isValidCell(int x, int y, int z) const
            (z >= 0 && z < size_z);
 }
 
+/**
+ * @brief Propaga las restricciones de un cubo a sus vecinos.
+ *
+ * Se encarga de propagar las restricciones de un cubo a sus vecinos, es
+ * decir, si un cubo ha colapsado a un patrón, se encarga de reducir las
+ * posibilidades de los vecinos que no son compatibles con ese patrón.
+ *
+ * @param cell La celda que se va a propagar
+ *
+ * @return true si se ha detectado una contradicción, false en caso
+ *         contrario
+ */
 bool Wfc3D::propagateConstraints(Coords3DInt cell)
 {
     std::queue<Coords3DInt> queue;
@@ -240,10 +259,6 @@ bool Wfc3D::propagateConstraints(Coords3DInt cell)
                 {
                     new_possibilities.insert(p);
                 }
-                // else
-                // {
-                //     std::cerr << "NO is3DCompatible en (" << x << ", " << y << ", " << z << ")VS(" << nx << ", " << ny << ", " << nz << ")\t " << current_pattern << " with p:  " << p << "\n";
-                // }
             }
             if (matrix3D[nx][ny][nz].empty())
             {
@@ -254,6 +269,11 @@ bool Wfc3D::propagateConstraints(Coords3DInt cell)
             if (new_possibilities.size() != matrix3D[nx][ny][nz].size())
             {
                 matrix3D[nx][ny][nz] = new_possibilities;
+                // if (matrix3D[nx][ny][nz].empty())
+                // {
+                //     std::cerr << "No possible result for Neighbor\n";
+                //     return true;
+                // }
                 queue.push({nx, ny, nz});
             }
         }
@@ -261,7 +281,7 @@ bool Wfc3D::propagateConstraints(Coords3DInt cell)
     return false;
 }
 
-void Wfc3D::saveState(const Coords3DInt& cell)
+void Wfc3D::saveState(const Coords3DInt &cell)
 {
     DecisionPoint dp;
     dp.cell = cell;
@@ -271,8 +291,10 @@ void Wfc3D::saveState(const Coords3DInt& cell)
 
 bool Wfc3D::backtrack()
 {
+
     if (decisionStack.empty() || attempts >= maxAttempts)
     {
+        std::cerr << "\tDIDNT Backtracked!\n";
         return false;
     }
 
@@ -281,6 +303,7 @@ bool Wfc3D::backtrack()
 
     matrix3D = lastDecision.history;
     attempts++;
+    std::cerr << "\tBacktracked!\n";
 
     return true;
 }
@@ -300,6 +323,7 @@ bool Wfc3D::executeWfc3D()
         auto collapsedPattern = attemptCollapse(cell);
         if (!collapsedPattern.has_value())
         {
+            std::cerr << "[395] Should backtrack now...\n";
             if (!backtrack())
             {
                 return false;
@@ -307,10 +331,12 @@ bool Wfc3D::executeWfc3D()
             continue;
         }
 
-        if (propagateConstraints(cell)) {
+        if (propagateConstraints(cell)) // IF hay contradiccion
+        {
             matrix3D = decisionStack.top().history;
             if (!attemptCollapse(cell).has_value())
             {
+                std::cerr << "[408]Should backtrack now...\n";
                 if (!backtrack())
                 {
                     return false;
