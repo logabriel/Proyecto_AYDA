@@ -1,9 +1,13 @@
 clear
 rm build/ProyectoWFC
 rm build/tests
-cmake -B build && cmake --build build &&
-if [ "$#" -ne 4 ]; then
-    echo "Usage: ./BuildAndTest.sh <x> <y> <z> <seed>\n"
+cmake -B build && 
+cmake --build build && clear
+if [ "$#" -eq 4 ]; then
+    time ./build/ProyectoWFC $1 $2 $3 $4
+#fi
+else
+    echo "Usage: ./BuildAndTest.sh <x> <y> <z> <seed>"
     exit 1
 fi
-./build/ProyectoWFC $1 $2 $3 $4
+# time ./build/ProyectoWFC $1 $2 $3 $4
