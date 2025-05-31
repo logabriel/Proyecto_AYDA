@@ -309,11 +309,13 @@ bool Wfc3D::executeWfc3D()
 
         if (cell.x == -1)
         {
+            this->updateRenderVector();
             return true; // todas las celdas han colapsado se detiene el algoritmo
         }
 
         saveState(cell);
         auto collapsedPattern = attemptCollapse(cell);
+
         if (!collapsedPattern.has_value())
         {
             if (!backtrack())
@@ -362,4 +364,52 @@ void Wfc3D::printResult() const
         }
         std::cout << std::endl;
     }
+}
+
+void Wfc3D::updateRenderVector()
+{
+
+    for (int x = 0; x < size_x; ++x)
+    {
+        for (int y = 0; y < size_y; ++y)
+        {
+            for (int z = 0; z < size_z; ++z)
+            {
+                bool isExterior = false;
+                unsigned int patternId = *matrix3D[x][y][z].begin();
+                if (patternId == 0)
+                {
+                    continue; // Si no hay patrón, no se añade al renderVector
+                }
+                if (
+                    x == 0 ||
+                    y == 0 ||
+                    z == 0 ||
+                    x == size_x - 1 ||
+                    y == size_y - 1 ||
+                    z == size_z - 1)
+                {
+                    isExterior = true; // Si está en el borde, es exterior
+                }
+                else
+                {
+                    for (auto [nx, ny, nz] : getNeighbors(x, y, z))
+                    {
+                        auto nId = *matrix3D[nx][ny][nz].begin();
+                        if (nId == 0)
+                        {
+                            isExterior = true;
+                            break;
+                        }
+                    }
+                }
+                if (isExterior)
+                {
+
+                    renderVector.emplace_back(std::make_tuple(patternId, x, y, z));
+                }
+            }
+        }
+    }
+    std::cout << "\tUpdated Render Vector" << std::endl;
 }

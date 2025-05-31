@@ -8,11 +8,12 @@
 #include <stack>
 #include <tuple>
 
-struct DecisionPoint {
-        Coords3DInt cell;
-        std::vector<std::vector<std::vector<std::set<unsigned int>>>> history;
-        std::set<unsigned int> triedPatterns;
-    };
+struct DecisionPoint
+{
+    Coords3DInt cell;
+    std::vector<std::vector<std::vector<std::set<unsigned int>>>> history;
+    std::set<unsigned int> triedPatterns;
+};
 
 class Wfc3D
 {
@@ -26,15 +27,15 @@ private:
     void initializeMatrix3D() noexcept;
     Coords3DInt findMinEntropyCell();
     std::optional<unsigned> attemptCollapse(Coords3DInt cell_position);
-    //bool is3DCompatible(Coords3DInt cell1, Coords3DInt cell2, int pattern1, int pattern2);
+    // bool is3DCompatible(Coords3DInt cell1, Coords3DInt cell2, int pattern1, int pattern2);
     bool is3DCompatible(Coords3DInt cell_position);
     bool propagateConstraints(Coords3DInt cell);
     std::vector<Coords3DInt> getNeighbors(int x, int y, int z) const;
     bool isValidCell(int x, int y, int z) const;
-
-    //backtracking
+    std::vector<std::tuple<unsigned, int, int, int>> renderVector; // A vector of (pattern_id, x_pos, y_pos, z_pos), used for rendering, instead of reading the full matrix3D.
+    // backtracking
     std::stack<DecisionPoint> decisionStack;
-    void saveState(const Coords3DInt& cell);
+    void saveState(const Coords3DInt &cell);
     bool backtrack();
     int maxAttempts = 1000;
     int attempts = 0;
@@ -45,7 +46,9 @@ public:
     bool executeWfc3D();
     void printResult() const;
     void createBaseLayer(unsigned int patternId);
+    bool is3DCompatible(Coords3DInt cell1, Coords3DInt cell2, int pattern1, int pattern2);
     std::tuple<int, int, int> getSizes() const { return std::make_tuple(size_x, size_y, size_z); }
     std::vector<std::vector<std::vector<std::set<unsigned int>>>> getMatrix3D() const { return matrix3D; }
-    bool is3DCompatible(Coords3DInt cell1, Coords3DInt cell2, int pattern1, int pattern2);
+    void updateRenderVector();
+    std::vector<std::tuple<unsigned, int, int, int>> getRenderVector() const { return renderVector; };
 };
