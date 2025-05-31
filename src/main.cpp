@@ -139,9 +139,16 @@ int main(int argc, const char **argv)
 
         // Wfc3D wfc(patterns, weights, {x, y, z}, seed);
 
-        display_scene_from_matrix(walls_example(x, y, z, seed), roads_colors);
-        display_scene_from_matrix(terrain_example(x, y, z, seed), terrain_colors);
-        display_scene_from_matrix(roads_example(x, y, z, seed), roads_colors);
+        auto walls_wfc = walls_example(x, y, z, seed);
+        auto terrain__wfc = terrain_example(x, y, z, seed);
+        auto roads__wfc = roads_example(x, y, z, seed);
+
+        display_scene_from_vector(walls_wfc.getRenderVector(), roads_colors);
+        display_scene_from_vector(terrain__wfc.getRenderVector(), terrain_colors);
+        display_scene_from_vector(roads__wfc.getRenderVector(), roads_colors);
+        // display_scene_from_matrix( , roads_colors);
+        // display_scene_from_matrix( , terrain_colors);
+        // display_scene_from_matrix( , roads_colors);
 
         // if (wfc.executeWfc3D())
         // {
