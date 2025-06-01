@@ -1,6 +1,6 @@
 #include "Wfc3D.hpp"
 #include "Visualization.hpp"
-// #include <optional>
+
 Color BG_COLOR = {109, 129, 150};
 void display_scene_from_matrix(Wfc3D wfc3d, std::vector<Color> display_colors)
 {
@@ -26,6 +26,7 @@ void display_scene_from_matrix(Wfc3D wfc3d, std::vector<Color> display_colors)
     auto offset_to_center_y = size_y / 2;
     auto offset_to_center_z = size_z / 2;
     bool is_cursor_enabled = true;
+    bool is_wireframe_enabled = true;
     while (!WindowShouldClose())
     {
         UpdateCamera(&camera, CAMERA_THIRD_PERSON);
@@ -36,12 +37,12 @@ void display_scene_from_matrix(Wfc3D wfc3d, std::vector<Color> display_colors)
         {
             ToggleFullscreen();
         }
-        if (IsKeyPressed(KEY_SPACE) && is_cursor_enabled)
+        if (IsKeyPressed(KEY_G) && is_cursor_enabled)
         {
             is_cursor_enabled = false;
             DisableCursor();
         }
-        if (IsKeyPressed(KEY_SPACE) && !is_cursor_enabled)
+        if (IsKeyPressed(KEY_G) && !is_cursor_enabled)
         {
             is_cursor_enabled = true;
             EnableCursor();
@@ -62,7 +63,10 @@ void display_scene_from_matrix(Wfc3D wfc3d, std::vector<Color> display_colors)
                             Color cell_color = display_colors[pattern - 1];
                             Vector3 cube_pos = {static_cast<float>(offset_to_center_x - x), static_cast<float>(z), static_cast<float>(offset_to_center_y - y)};
                             DrawCube(cube_pos, 1.0f, 1.0f, 1.0f, cell_color);
-                            DrawCubeWires(cube_pos, 1.0f, 1.0f, 1.0f, BLACK);
+                            if (is_wireframe_enabled)
+                            {
+                                DrawCubeWires(cube_pos, 1.0f, 1.0f, 1.0f, BLACK);
+                            }
                         }
                     }
                     else
@@ -115,12 +119,12 @@ void display_scene_from_matrix(std::vector<std::vector<std::vector<std::set<unsi
         {
             ToggleFullscreen();
         }
-        if (IsKeyPressed(KEY_SPACE) && is_cursor_enabled)
+        if (IsKeyPressed(KEY_G) && is_cursor_enabled)
         {
             is_cursor_enabled = false;
             DisableCursor();
         }
-        if (IsKeyPressed(KEY_SPACE) && !is_cursor_enabled)
+        if (IsKeyPressed(KEY_G) && !is_cursor_enabled)
         {
             is_cursor_enabled = true;
             EnableCursor();
@@ -156,7 +160,7 @@ void display_scene_from_matrix(std::vector<std::vector<std::vector<std::set<unsi
     CloseWindow();
 }
 
-void display_scene_from_vector(std::vector<std::tuple<unsigned, int, int, int>> vec, std::vector<Color> display_colors)
+void display_scene_from_vector(std::vector<std::tuple<unsigned, int, int, int>> vec, std::tuple<int, int, int> offset, std::vector<Color> display_colors)
 {
 #pragma region Visual Setup
     const int screenWidth = 1000;
@@ -171,13 +175,19 @@ void display_scene_from_vector(std::vector<std::tuple<unsigned, int, int, int>> 
     camera.up = (Vector3){0.0f, 1.0f, 0.0f};
     camera.fovy = 45.0f;
     camera.projection = CAMERA_PERSPECTIVE;
+    // camera.projection = CAMERA_ORTHOGRAPHIC;
+
     SetTargetFPS(60);
 #pragma endregion
     bool is_cursor_enabled = true;
+    bool is_wireframe_enabled = true;
 
+    auto [offset_x, offset_y, offset_z] = offset;
     while (!WindowShouldClose())
     {
-        UpdateCamera(&camera, CAMERA_THIRD_PERSON);
+
+        UpdateCamera(&camera, CAMERA_FREE);
+        // UpdateCamera(&camera, CAMERA_ORBITAL);
         BeginDrawing();
         ClearBackground(BG_COLOR);
         BeginMode3D(camera);
@@ -185,24 +195,34 @@ void display_scene_from_vector(std::vector<std::tuple<unsigned, int, int, int>> 
         {
             ToggleFullscreen();
         }
-        if (IsKeyPressed(KEY_SPACE) && is_cursor_enabled)
+        if (IsKeyPressed(KEY_G) && is_cursor_enabled)
         {
             is_cursor_enabled = false;
             DisableCursor();
         }
-        if (IsKeyPressed(KEY_SPACE) && !is_cursor_enabled)
+        if (IsKeyPressed(KEY_G) && !is_cursor_enabled)
         {
             is_cursor_enabled = true;
             EnableCursor();
         }
+        if (IsKeyPressed(KEY_H))
+        {
+            is_wireframe_enabled = !is_wireframe_enabled;
+        }
         for (const auto &[pattern_id, x_pos, y_pos, z_pos] : vec)
         {
             Color cell_color = display_colors[pattern_id - 1];
-            Vector3 cube_pos = {static_cast<float>(x_pos), static_cast<float>(z_pos), static_cast<float>(y_pos)};
+            Vector3 cube_pos = {static_cast<float>(offset_x - x_pos), static_cast<float>(z_pos), static_cast<float>(offset_y - y_pos)};
             DrawCube(cube_pos, 1.0f, 1.0f, 1.0f, cell_color);
-            DrawCubeWires(cube_pos, 1.0f, 1.0f, 1.0f, BLACK);
+            if (is_wireframe_enabled)
+            {
+                DrawCubeWires(cube_pos, 1.0f, 1.0f, 1.0f, BLACK);
+            }
         }
         EndMode3D();
+        DrawText("Toggle Fullscren (Press F)", 20, 80, 20, MAGENTA);
+        // DrawText("Toggle Cursor (Press G)", 20, 20, 20, MAGENTA);
+        DrawText("Toggle Wireframe (Press H)", 20, 40, 20, MAGENTA);
         EndDrawing();
     }
 

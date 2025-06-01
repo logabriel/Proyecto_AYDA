@@ -139,28 +139,13 @@ int main(int argc, const char **argv)
 
         // Wfc3D wfc(patterns, weights, {x, y, z}, seed);
 
+        auto offset = std::make_tuple(x / 2, y / 2, 0);
         auto walls_wfc = walls_example(x, y, z, seed);
-        auto terrain__wfc = terrain_example(x, y, z, seed);
-        auto roads__wfc = roads_example(x, y, z, seed);
-
-        display_scene_from_vector(walls_wfc.getRenderVector(), roads_colors);
-        display_scene_from_vector(terrain__wfc.getRenderVector(), terrain_colors);
-        display_scene_from_vector(roads__wfc.getRenderVector(), roads_colors);
-        // display_scene_from_matrix( , roads_colors);
-        // display_scene_from_matrix( , terrain_colors);
-        // display_scene_from_matrix( , roads_colors);
-
-        // if (wfc.executeWfc3D())
-        // {
-        //     std::cout << "Generación 3D completada con éxito!\n";
-        //     wfc.printResult();
-        // }
-        // else
-        // {
-        //     std::cout << "La generación 3D falló debido a contradicciones.\n";
-        //     wfc.printResult();
-        // }
-        // display_scene_from_matrix(wfc);
+        display_scene_from_vector(walls_wfc.getRenderVector(), offset, roads_colors);
+        auto terrain_wfc = terrain_example(x, y, z, seed);
+        display_scene_from_vector(terrain_wfc.getRenderVector(), offset, terrain_colors);
+        auto roads_wfc = roads_example(x, y, z, seed);
+        display_scene_from_vector(roads_wfc.getRenderVector(), offset, roads_colors);
     }
     if (argc != 5)
     {
